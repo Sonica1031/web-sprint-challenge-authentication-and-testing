@@ -20,11 +20,11 @@ router.post('/login', async (req, res) => {
   let { username, password } = req.body;
   await db("users").select("*").where("username", username)
   .then(users =>{
-    console.log(users);
-  if (!users && !bcrypt.compare(password, users.password)){
-    res.status(401).json({message: `Invalid Credentials!`});
-  }else{
+  if(bcrypt.compareSync(password, users[0].password) && users[0].username == username){
+    req.session.name = users[0].username;
     res.status(200).json({message: `Welcome ${users[0].username}`});
+  }else{
+    res.status(401).json({message: `Invalid Credentials!`});
   }
   })
   .catch(error => {
